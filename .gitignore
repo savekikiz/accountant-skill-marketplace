@@ -1,0 +1,4 @@
+.DS_Store
+ลูกค้า/
+*.xlsx
+!plugins/**/*.xlsx

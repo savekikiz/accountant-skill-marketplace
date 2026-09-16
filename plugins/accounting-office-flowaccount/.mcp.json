@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "flowaccount": { "type": "http", "url": "https://mcp.flowaccount.com/mcp" }
+  }
+}
