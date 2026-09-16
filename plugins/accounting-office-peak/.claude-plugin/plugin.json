@@ -1,9 +1,17 @@
 {
   "name": "accounting-office-peak",
   "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจแล้วเข้า PEAK ผ่าน PEAK MCP — ติดตั้งเมื่อมีลูกค้าใช้ PEAK (ต้องติดตั้ง accounting-office-core ก่อน)",
-  "version": "1.0.0",
-  "author": { "name": "Surapas Mobundit (เซฟ / บัญชีเทค)" },
+  "version": "1.1.0",
+  "author": {
+    "name": "Surapas Mobundit (เซฟ / บัญชีเทค)"
+  },
   "license": "MIT",
   "homepage": "https://github.com/bancheetech/thai-accounting-office-plugins/tree/main/plugins/accounting-office-peak",
-  "keywords": ["peak", "peakaccount", "erp", "expense", "mcp"]
+  "keywords": [
+    "peak",
+    "peakaccount",
+    "erp",
+    "expense",
+    "mcp"
+  ]
 }

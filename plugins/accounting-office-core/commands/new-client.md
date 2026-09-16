@@ -57,7 +57,7 @@ argument-hint: <ชื่อลูกค้า> [รอบบัญชี เช
 ใช้ template นี้ (แทนค่าจริงทั้งหมด ห้ามเหลือ `<...>`):
 
 ```markdown
-<!-- สร้างโดย accounting-office-core v1.0.0 -->
+<!-- สร้างโดย accounting-office-core v1.1.0 -->
 
 # ข้อมูลลูกค้า — <ชื่อบริษัทเต็ม>
 
@@ -86,7 +86,7 @@ argument-hint: <ชื่อลูกค้า> [รอบบัญชี เช
 ## Step 5 — เขียน mapping-overrides.md
 
 ```markdown
-<!-- สร้างโดย accounting-office-core v1.0.0 -->
+<!-- สร้างโดย accounting-office-core v1.1.0 -->
 
 # ข้อยกเว้นการ mapping เฉพาะ <ชื่อลูกค้า>
 

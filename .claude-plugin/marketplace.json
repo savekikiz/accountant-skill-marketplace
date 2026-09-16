@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "thai-accounting-office",
   "description": "Plugin สำหรับสำนักงานบัญชีไทย: ตรวจเอกสาร กระทบยอด ภาษี และบันทึกเข้า ERP",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "owner": {
     "name": "Surapas Mobundit",
     "email": "hello@bancheetech.com",
@@ -18,11 +18,21 @@
       "displayName": "สำนักงานบัญชี — งานหลัก",
       "source": "./plugins/accounting-office-core",
       "description": "งานหลักของสำนักงานบัญชี: ตรวจผล OCR, vouch, กระทบยอดธนาคาร, ภ.ง.ด.3/53, สรุปปิดงวด",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "accounting",
       "license": "MIT",
-      "author": { "name": "Surapas Mobundit (เซฟ / บัญชีเทค)" },
-      "keywords": ["สำนักงานบัญชี", "ocr", "vouch", "bank-reconciliation", "ภ.ง.ด.3", "ภ.ง.ด.53", "ปิดงวด"],
+      "author": {
+        "name": "Surapas Mobundit (เซฟ / บัญชีเทค)"
+      },
+      "keywords": [
+        "สำนักงานบัญชี",
+        "ocr",
+        "vouch",
+        "bank-reconciliation",
+        "ภ.ง.ด.3",
+        "ภ.ง.ด.53",
+        "ปิดงวด"
+      ],
       "metadata": {
         "language": "th",
         "taxYear": "2569",
@@ -35,15 +45,26 @@
       "displayName": "สำนักงานบัญชี — FlowAccount",
       "source": "./plugins/accounting-office-flowaccount",
       "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจเข้า FlowAccount (ต้องติดตั้ง core ก่อน)",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "accounting",
       "license": "MIT",
-      "author": { "name": "Surapas Mobundit (เซฟ / บัญชีเทค)" },
-      "keywords": ["flowaccount", "erp", "ค่าใช้จ่าย", "mcp"],
+      "author": {
+        "name": "Surapas Mobundit (เซฟ / บัญชีเทค)"
+      },
+      "keywords": [
+        "flowaccount",
+        "erp",
+        "ค่าใช้จ่าย",
+        "mcp"
+      ],
       "metadata": {
         "language": "th",
-        "requires": ["accounting-office-core"],
-        "requiresMcp": ["flowaccount"],
+        "requires": [
+          "accounting-office-core"
+        ],
+        "requiresMcp": [
+          "flowaccount"
+        ],
         "handlesClientData": true
       }
     },
@@ -52,15 +73,26 @@
       "displayName": "สำนักงานบัญชี — PEAK",
       "source": "./plugins/accounting-office-peak",
       "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจเข้า PEAK (ต้องติดตั้ง core ก่อน)",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "accounting",
       "license": "MIT",
-      "author": { "name": "Surapas Mobundit (เซฟ / บัญชีเทค)" },
-      "keywords": ["peak", "erp", "ค่าใช้จ่าย", "mcp"],
+      "author": {
+        "name": "Surapas Mobundit (เซฟ / บัญชีเทค)"
+      },
+      "keywords": [
+        "peak",
+        "erp",
+        "ค่าใช้จ่าย",
+        "mcp"
+      ],
       "metadata": {
         "language": "th",
-        "requires": ["accounting-office-core"],
-        "requiresMcp": ["peak"],
+        "requires": [
+          "accounting-office-core"
+        ],
+        "requiresMcp": [
+          "peak"
+        ],
         "handlesClientData": true
       }
     }
