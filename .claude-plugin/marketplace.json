@@ -1,15 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "thai-accounting-office",
-  "description": "Plugin สำหรับสำนักงานบัญชีไทย: ตรวจเอกสาร กระทบยอด ภาษี และบันทึกเข้า ERP",
-  "version": "1.3.0",
+  "description": "Plugin สำหรับสำนักงานบัญชีไทย: ตรวจเอกสาร กระทบยอด ภาษี บันทึกเข้า ERP และ Dashboard เป็น Excel",
+  "version": "1.4.0",
   "owner": {
     "name": "Surapas Mobundit",
     "email": "hello@bancheetech.com",
     "url": "https://github.com/bancheetech"
   },
   "metadata": {
-    "description": "Plugin สำหรับสำนักงานบัญชีไทย: ตรวจเอกสาร กระทบยอด ภาษี และบันทึกเข้า ERP",
+    "description": "Plugin สำหรับสำนักงานบัญชีไทย: ตรวจเอกสาร กระทบยอด ภาษี บันทึกเข้า ERP และ Dashboard เป็น Excel",
     "language": "th"
   },
   "plugins": [
@@ -50,8 +50,8 @@
       "name": "accounting-office-flowaccount",
       "displayName": "สำนักงานบัญชี — FlowAccount",
       "source": "./plugins/accounting-office-flowaccount",
-      "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจเข้า FlowAccount พร้อมด่านตรวจก่อนเขียนทุกครั้ง (ต้องติดตั้ง core ก่อน)",
-      "version": "1.3.0",
+      "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจเข้า FlowAccount พร้อมด่านตรวจก่อนเขียนทุกครั้ง และดึงข้อมูลมาทำ Dashboard เป็น Excel (ต้องติดตั้ง core ก่อน)",
+      "version": "1.4.0",
       "category": "accounting",
       "license": "MIT",
       "author": {
@@ -61,6 +61,9 @@
         "flowaccount",
         "erp",
         "ค่าใช้จ่าย",
+        "dashboard",
+        "รายงานผู้บริหาร",
+        "excel",
         "mcp",
         "hooks",
         "ด่านตรวจ",
@@ -82,8 +85,8 @@
       "name": "accounting-office-peak",
       "displayName": "สำนักงานบัญชี — PEAK",
       "source": "./plugins/accounting-office-peak",
-      "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจเข้า PEAK พร้อมด่านตรวจก่อนเขียนทุกครั้ง (ต้องติดตั้ง core ก่อน)",
-      "version": "1.3.0",
+      "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจเข้า PEAK พร้อมด่านตรวจก่อนเขียนทุกครั้ง และดึงข้อมูลมาทำ Dashboard เป็น Excel (ต้องติดตั้ง core ก่อน)",
+      "version": "1.4.0",
       "category": "accounting",
       "license": "MIT",
       "author": {
@@ -93,6 +96,9 @@
         "peak",
         "erp",
         "ค่าใช้จ่าย",
+        "dashboard",
+        "รายงานผู้บริหาร",
+        "excel",
         "mcp",
         "hooks",
         "ด่านตรวจ",

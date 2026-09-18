@@ -1,7 +1,7 @@
 {
   "name": "accounting-office-flowaccount",
-  "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจแล้วเข้า FlowAccount ผ่าน FlowAccount MCP — ติดตั้งเมื่อมีลูกค้าใช้ FlowAccount (ต้องติดตั้ง accounting-office-core ก่อน)",
-  "version": "1.3.0",
+  "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจแล้วเข้า FlowAccount และดึงข้อมูลออกมาทำ Dashboard เป็น Excel ผ่าน FlowAccount MCP — ติดตั้งเมื่อมีลูกค้าใช้ FlowAccount (ต้องติดตั้ง accounting-office-core ก่อน)",
+  "version": "1.4.0",
   "author": {
     "name": "Surapas Mobundit (เซฟ / บัญชีเทค)"
   },
@@ -11,6 +11,9 @@
     "flowaccount",
     "erp",
     "expense",
+    "dashboard",
+    "รายงานผู้บริหาร",
+    "excel",
     "mcp",
     "hooks",
     "ด่านตรวจ",

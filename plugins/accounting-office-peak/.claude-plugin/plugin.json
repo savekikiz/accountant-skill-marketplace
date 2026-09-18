@@ -1,7 +1,7 @@
 {
   "name": "accounting-office-peak",
-  "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจแล้วเข้า PEAK ผ่าน PEAK MCP — ติดตั้งเมื่อมีลูกค้าใช้ PEAK (ต้องติดตั้ง accounting-office-core ก่อน)",
-  "version": "1.3.0",
+  "description": "บันทึกค่าใช้จ่ายที่ผ่านการตรวจแล้วเข้า PEAK และดึงข้อมูลออกมาทำ Dashboard เป็น Excel ผ่าน PEAK MCP — ติดตั้งเมื่อมีลูกค้าใช้ PEAK (ต้องติดตั้ง accounting-office-core ก่อน)",
+  "version": "1.4.0",
   "author": {
     "name": "Surapas Mobundit (เซฟ / บัญชีเทค)"
   },
@@ -12,6 +12,9 @@
     "peakaccount",
     "erp",
     "expense",
+    "dashboard",
+    "รายงานผู้บริหาร",
+    "excel",
     "mcp",
     "hooks",
     "ด่านตรวจ",

@@ -60,11 +60,13 @@
 | คำสั่ง | ทำอะไร |
 |---|---|
 | `/post-expense-flowaccount` | บันทึกค่าใช้จ่ายที่ตรวจแล้วเข้า FlowAccount (สถานะรออนุมัติ) |
+| `/dashboard-flowaccount` | ดึงข้อมูลจาก FlowAccount มาทำ Dashboard เป็น Excel (อ่านอย่างเดียว) |
 
 ### `accounting-office-peak`
 | คำสั่ง | ทำอะไร |
 |---|---|
 | `/post-expense-peak` | บันทึกค่าใช้จ่ายที่ตรวจแล้วเข้า PEAK (สถานะรออนุมัติ) |
+| `/dashboard-peak` | ดึงข้อมูลจาก PEAK มาทำ Dashboard เป็น Excel (อ่านอย่างเดียว) |
 
 ---
 
@@ -124,6 +126,36 @@ skill `token-meter` อยู่ใน `accounting-office-core` จึงใช�
 
 ---
 
+## Dashboard เป็น Excel — `/dashboard-flowaccount` · `/dashboard-peak`
+
+ดึงตัวเลขจาก ERP **แบบอ่านอย่างเดียว** แล้วออกเป็นไฟล์ `.xlsx` เดียวที่มี
+KPI 6 ตัว · งบกำไรขาดทุน · งบแสดงฐานะการเงิน · งบทดลอง · อายุลูกหนี้/เจ้าหนี้ ·
+ยอดขาย · ค่าใช้จ่าย · เงินรับ-จ่าย · กราฟ 4 รูป · และชีต **ที่มาของข้อมูล**
+
+สี่อย่างที่ตั้งใจออกแบบไว้ เพราะเป็นจุดที่รายงานผู้บริหารมักพลาด:
+
+| หลักการ | ทำอะไร |
+|---|---|
+| **`ดึงไม่ได้` ไม่ใช่ `0`** | ช่องที่ดึงข้อมูลไม่ได้ถูกระบายเทาและเขียนเหตุผล — ไม่มีศูนย์ปลอมในไฟล์ |
+| **ทุกตัวเลขมีที่มา** | ชีตที่มาของข้อมูลบอก tool ที่เรียก พารามิเตอร์งวดที่ส่งจริง จำนวนแถว และเวลาที่ดึง |
+| **ตรวจยอดข้ามแหล่ง** | รายได้/ค่าใช้จ่าย/ลูกหนี้ ถูกเทียบสองแหล่ง ไม่ตรงก็แสดงผลต่างไว้ **ไม่กลบ** |
+| **กราฟอ้างเซลล์จริง** | เปิดใน Excel แล้วแก้ตัวเลขในตาราง กราฟขยับตาม ไม่ใช่รูปภาพที่แก้ไม่ได้ |
+
+ไฟล์ถูกวาดด้วยสคริปต์ `skills/*-dashboard/scripts/build_dashboard.py` ไม่ใช่โค้ดที่โมเดลเขียนใหม่ทุกครั้ง
+— รันด้วยข้อมูลชุดเดิมได้ไฟล์หน้าตาเดิม สคริปต์ตัวนี้เป็นสำเนาเดียวกันทั้งสอง plugin
+(ซิงก์ด้วย `scripts/sync_hooks_lib.py`) และ **ต้องมี `openpyxl`** ในเครื่อง
+ถ้าไม่มี สคริปต์จะบอกวิธีติดตั้งแล้วออกด้วย exit code 3 ไม่ใช่เปลี่ยนไปเขียน `.csv` เงียบ ๆ
+
+```bash
+python3 -m pip install --user openpyxl
+```
+
+> ⚠️ **Dashboard ของกิจการผิดรายอ่านดูสมเหตุสมผลทุกบรรทัด** ทั้งสอง skill จึงบังคับเทียบ
+> ชื่อกิจการและเลขผู้เสียภาษีใน ERP กับ `client-profile.md` ก่อนดึงข้อมูล — ไม่ตรงคือหยุด
+> ข้อนี้สำคัญกับ PEAK เป็นพิเศษ เพราะผู้ใช้หนึ่งคนเข้าถึงหลายกิจการได้
+
+---
+
 ## ลำดับงานที่ออกแบบไว้
 
 ```
@@ -140,9 +172,13 @@ skill `token-meter` อยู่ใน `accounting-office-core` จึงใช�
 /wht-prep          เตรียมยื่น ภ.ง.ด.
       ↓
 /close-report      สรุปปิดงวด + ร่างอีเมลขอเอกสารที่ขาด
+      ↓
+/dashboard-*       Dashboard ผู้บริหารเป็น Excel (ทำเมื่อข้อมูลในงวดครบแล้ว)
 ```
 
 `/token-report` ใช้ได้ทุกเมื่อ ไม่อยู่ในลำดับนี้ — เป็นงานวัดผล ไม่ใช่งานบัญชี
+`/dashboard-*` ทำตอนไหนก็ได้ แต่ **Dashboard จะสะท้อนเฉพาะสิ่งที่ลงในระบบแล้ว** —
+ทำก่อนบันทึกครบ จะได้รายงานที่ไม่ครบโดยที่ตัวรายงานไม่มีทางรู้
 
 ข้ามขั้นได้ถ้างานนั้นไม่มี แต่ `/post-expense-*` **ควรทำหลัง** `/vouch-expense` เสมอ
 
@@ -223,7 +259,10 @@ python3 plugins/accounting-office-core/hooks/session_brief.py --selftest
    กับ endpoint จริง จึงตรวจโครงสร้าง payload ไม่ได้ และถามผู้ใช้ทุกใบ
    `hooks/erp_post.py` บันทึกชื่อ tool ที่เจอจริงลง `${CLAUDE_PLUGIN_DATA}/observed-tools.json`
    ให้ก็อปไปเติม `hooks/peak-tools.json` และ `tools:` ของ `agents/peak-lookup.md`
-4. **state ของ session อยู่ที่ `~/.accounting-office/`** (เปลี่ยนได้ด้วย `ACCOUNTING_OFFICE_STATE`)
+4. **Dashboard ของ PEAK ได้ชีตไม่เท่ากันในแต่ละเครื่อง** — บล็อกที่ทำได้ขึ้นกับ tool ที่มีจริง
+   ในเซสชันนั้นและรายชื่อที่ยืนยันไว้ใน `hooks/peak-tools.json` (learn-mode จะ deny tool ที่ยังไม่รู้จัก
+   แม้เป็น tool อ่าน) ชีต **ที่มาของข้อมูล** คือที่ที่บอกว่ารันครั้งนั้นได้อะไรมาและขาดอะไรเพราะอะไร
+5. **state ของ session อยู่ที่ `~/.accounting-office/`** (เปลี่ยนได้ด้วย `ACCOUNTING_OFFICE_STATE`)
    ไม่ได้อยู่ในโฟลเดอร์ลูกค้า เพราะโฟลเดอร์นั้นถูกซิปส่งให้ลูกค้า — session ที่เก่ากว่า 7 วันถูกลบอัตโนมัติ
    audit log อยู่ที่ `${CLAUDE_PLUGIN_DATA}/audit/` และเก็บแค่ชื่อโฟลเดอร์ลูกค้า ไม่เก็บชื่อผู้ขายหรือยอดเงิน
 
@@ -239,6 +278,9 @@ python3 plugins/accounting-office-flowaccount/hooks/tests/run_tests.py
 python3 plugins/accounting-office-peak/hooks/tests/run_tests.py
 ```
 
+คำสั่งเดียวกันซิงก์ **ตัวสร้าง Dashboard** (`build_dashboard.py` + `dashboard-layout.md`) ด้วย
+โดยใช้สำเนาใน `accounting-office-flowaccount` เป็นต้นทาง — แก้ที่นั่นแล้วรันใหม่
+
 เทสต์ของ core จะ assert SHA-256 ของทุกสำเนา — drift จึงกลายเป็นเทสต์แดง ไม่ใช่บั๊กลึกลับ
 สิ่งที่ fixture พิสูจน์ไม่ได้อยู่ใน `plugins/accounting-office-core/hooks/tests/MANUAL.md`
 
@@ -252,6 +294,9 @@ python3 plugins/accounting-office-peak/hooks/tests/run_tests.py
 - ไม่ตัดสินว่ารายจ่ายเป็นรายจ่ายต้องห้ามตามมาตรา 65 ตรี
 - ไม่ตรวจจับการทุจริต และไม่ตรวจว่าเอกสารเป็นของแท้
 - ไม่ปิดงบการเงิน ไม่คำนวณค่าเสื่อมราคา ไม่บันทึกรายการปรับปรุงปิดงวด
+- Dashboard ไม่พยากรณ์ ไม่ประมาณการ และไม่ให้คำแนะนำทางธุรกิจ — รายงานสิ่งที่เกิดขึ้นแล้วเท่านั้น
+- ตัวเลขใน Dashboard เป็นค่าที่ ERP รายงาน ณ เวลาที่ดึง **ไม่ใช่งบการเงินที่ตรวจสอบแล้ว**
+  และไม่ใช่ยอดที่ใช้ยื่นภาษี
 
 **ผลลัพธ์ทุกอย่างต้องถูกตรวจทานโดยผู้ทำบัญชีก่อนนำไปใช้**
 plugin ชุดนี้เป็นเครื่องมือช่วยทำงาน ไม่ใช่ผู้รับผิดชอบความถูกต้อง
@@ -278,7 +323,45 @@ plugin ชุดนี้เป็นเครื่องมือช่วย�
 
 ---
 
+## สำหรับผู้เรียน — prompt ที่ใช้สร้าง skill
+
+โฟลเดอร์ [`prompts/`](prompts/) เก็บ **prompt ที่ใช้สร้าง skill แต่ละตัวขึ้นมาใหม่**
+ไม่ได้ถูกโหลดเข้า context เวลาใช้งานจริง — มีไว้ให้ลองปรับ prompt แล้วดูว่า skill ที่ออกมาเปลี่ยนไปอย่างไร
+โครงโฟลเดอร์สะท้อน `plugins/` หนึ่งโฟลเดอร์ต่อหนึ่ง plugin
+
+| Prompt | สร้าง skill | จุดที่ฝึก |
+|---|---|---|
+| [`accounting-office-core/bank-reconcile.md`](prompts/accounting-office-core/bank-reconcile.md) | `bank-reconcile` | ลำดับการจับคู่ และเกณฑ์หลวม-แน่นแลกกับ false positive |
+| [`accounting-office-core/ocr-review.md`](prompts/accounting-office-core/ocr-review.md) | `ocr-review` | เลือกกฎที่คุ้มจะตรวจ และการแบ่ง "ต้องแก้" กับ "ต้องดู" |
+| [`accounting-office-core/vouch-expense.md`](prompts/accounting-office-core/vouch-expense.md) | `vouch-expense` | ทิศทางของงาน และการแมปผลเข้า audit assertion |
+| [`accounting-office-core/wht-prep.md`](prompts/accounting-office-core/wht-prep.md) | `wht-prep` | ผลลัพธ์ที่ต้องตรงรูปแบบปลายทางเป๊ะ ๆ |
+| [`accounting-office-core/close-report.md`](prompts/accounting-office-core/close-report.md) | `close-report` | แยก "ยังไม่ได้ทำ" ออกจาก "ทำแล้วผ่าน" |
+| [`accounting-office-core/token-meter.md`](prompts/accounting-office-core/token-meter.md) | `token-meter` | อะไรควรเป็นโค้ด อะไรควรเป็นคำสั่งใน SKILL.md |
+| [`accounting-office-flowaccount/flowaccount-posting.md`](prompts/accounting-office-flowaccount/flowaccount-posting.md) | `flowaccount-posting` | เขียน skill ที่ทำสิ่งที่ย้อนกลับยากให้ปลอดภัย |
+| [`accounting-office-peak/peak-posting.md`](prompts/accounting-office-peak/peak-posting.md) | `peak-posting` | ERP ที่ยังไม่ยืนยันชื่อ tool และรูป payload |
+| [`accounting-office-flowaccount/flowaccount-dashboard.md`](prompts/accounting-office-flowaccount/flowaccount-dashboard.md) | `flowaccount-dashboard` | สัญญาระหว่าง skill กับสคริปต์ + กฎ "ดึงไม่ได้ ห้ามกลายเป็น 0" |
+| [`accounting-office-peak/peak-dashboard.md`](prompts/accounting-office-peak/peak-dashboard.md) | `peak-dashboard` | เขียน skill ให้ทำงานกับระบบที่ยังไม่รู้ว่ามี tool อะไร |
+
+วิธีใช้: แก้บล็อก **ค่าตั้งของงานนี้** ในไฟล์ prompt → ก็อป prompt ทั้งบล็อกไปวางใน Claude Code
+→ เทียบไฟล์ที่ได้กับ SKILL.md ตัวจริงใน `plugins/` → แล้วลองแบบฝึกหัดท้ายไฟล์ทีละข้อ
+
+ทุกไฟล์ปิดท้ายด้วยแบบฝึกหัดปรับแต่งและกรณีทดสอบพร้อมคำตอบที่ถูก
+โครงของ prompt ทุกตัวและวิธีเขียน prompt ของ skill ตัวใหม่เอง อยู่ใน [`prompts/README.md`](prompts/README.md)
+
+---
+
 ## ประวัติเวอร์ชัน
+
+### 1.4.0 — 2026-09-18
+- **เพิ่ม skill `flowaccount-dashboard` และ `peak-dashboard`** — ดึงข้อมูลจาก ERP แบบอ่านอย่างเดียว
+  แล้วออกเป็น Dashboard `.xlsx` (KPI · งบ · aging · ยอดขาย/ค่าใช้จ่าย · เงินรับ-จ่าย · กราฟ)
+  พร้อมคำสั่ง `/dashboard-flowaccount` และ `/dashboard-peak`
+- ไฟล์ถูกวาดด้วยสคริปต์ `build_dashboard.py` (สำเนาเดียวกันทั้งสอง plugin) ตามสัญญา data pack
+  ใน `references/dashboard-layout.md` — ผลลัพธ์จึงเหมือนกันทุกครั้งที่รันด้วยข้อมูลชุดเดิม
+- หลักการที่บังคับไว้ในทั้งสอง skill: **`ดึงไม่ได้` ห้ามกลายเป็น `0`** · ทุกตัวเลขมีชีตที่มา ·
+  ตรวจยอดข้ามแหล่งแล้วแสดงผลต่างโดยไม่กลบ · ยืนยันกิจการปลายทางก่อนดึง
+- `scripts/sync_hooks_lib.py` ซิงก์ตัวสร้าง Dashboard ระหว่าง plugin ERP เพิ่มจาก `hooks/lib/`
+- เวอร์ชัน plugin ERP → 1.4.0 (`accounting-office-core` ยังเป็น 1.3.0 ไม่มีการแก้)
 
 ### 1.3.0 — 2026-09-18
 - **เพิ่มชั้น hooks ให้ทั้ง 3 plugin** — กฎที่เครื่องตรวจได้ย้ายจากข้อความใน markdown
