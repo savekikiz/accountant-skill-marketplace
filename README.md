@@ -54,6 +54,7 @@
 | `/wht-prep` | เตรียมข้อมูล ภ.ง.ด.3 / ภ.ง.ด.53 |
 | `/close-report` | สรุปสถานะปิดงวด + ร่างอีเมลขอเอกสาร |
 | `/token-report` | รายงานการใช้ token และต้นทุน (USD/บาท) ของงานที่ทำไป |
+| `/switch-client` | ปลด pin ลูกค้าปัจจุบัน เพื่อเปลี่ยนรายโดยไม่ต้อง `/clear` |
 
 ### `accounting-office-flowaccount`
 | คำสั่ง | ทำอะไร |
@@ -168,17 +169,78 @@ skill `token-meter` อยู่ใน `accounting-office-core` จึงใช�
 
 ---
 
-## กฎบังคับที่มีอยู่ในทุก SKILL.md
+## ด่านตรวจอัตโนมัติ (hooks)
 
-Plugin แต่ละตัวอ้างไฟล์ข้ามกันไม่ได้ กฎชุดเดียวกันนี้จึงถูกเขียนซ้ำไว้ต้นทุก skill ที่ทำงานกับข้อมูลลูกค้า
-(ยกเว้น `token-meter` ซึ่งไม่แตะโฟลเดอร์ลูกค้าและไม่เขียนเข้า ERP — ใช้เฉพาะข้อ 5 บวกข้อห้ามเปิดเผยเนื้อหา transcript)
+ก่อนเวอร์ชัน 1.3.0 กฎทุกข้อเป็นแค่ข้อความสั่งใน markdown — ถ้าโมเดลพลาด กฎก็ไม่ทำงาน
+ตอนนี้กฎที่เครื่องตรวจได้ถูกย้ายไปเป็น **hook ระดับ plugin** ที่รันโค้ดจริงก่อน/หลังทุก tool call
 
-1. ทำงานเฉพาะในโฟลเดอร์ลูกค้าที่ผู้ใช้ระบุ ห้ามอ่านหรือเขียนโฟลเดอร์ลูกค้าอื่น
-2. อ่าน `client-profile.md` ก่อนเริ่มงานทุกครั้ง
-3. ก่อนเขียนข้อมูลเข้า ERP ต้องแสดงชื่อบริษัทและเลขผู้เสียภาษีปลายทาง แล้วเทียบกับ
-   `client-profile.md` — ไม่ตรงให้หยุด
-4. สร้างเอกสารใน ERP เป็น **สถานะรออนุมัติ** เท่านั้น ห้ามอนุมัติ ห้ามบันทึกรับชำระ ห้าม void
-5. ใส่ชื่อ plugin และเลขเวอร์ชันไว้ในหัวทุกไฟล์ที่สร้าง
+| กฎ | บังคับที่ชั้นไหน | ทำผิดแล้วเกิดอะไร |
+|---|---|---|
+| ทำงานได้ทีละลูกค้า (pin ต่อ session) | hook `path_guard` | ปฏิเสธ tool call |
+| ต้องอ่าน `client-profile.md` ก่อนแตะโฟลเดอร์ลูกค้า | hook `path_guard` | ปฏิเสธ tool call |
+| เขียนได้เฉพาะ `<งวด>/output/` | hook `path_guard` | ปฏิเสธ tool call |
+| ห้ามเขียนทับ `client-profile.md` / `mapping-overrides.md`, ห้ามสร้าง `chart-of-accounts.xlsx` | hook `path_guard` | ปฏิเสธ tool call |
+| หัวไฟล์ plugin + เวอร์ชัน | hook `path_guard` | **เติมให้อัตโนมัติ** |
+| ห้ามอ่านไฟล์ transcript เข้า context | hook `privacy_guard` | ปฏิเสธ tool call |
+| ขณะทำงานลูกค้า: ห้ามต่อเน็ต / ใช้ MCP ที่ไม่ใช่ ERP / ส่งอีเมล | hook `privacy_guard` | ปฏิเสธ tool call |
+| ERP: ห้ามอนุมัติ / void / ลบ / จ่ายชำระ / ส่งอีเมล / เอกสารฝั่งขาย | hook `erp_guard` | ปฏิเสธ tool call |
+| ERP: เลขผู้เสียภาษีปลายทางต้องตรงกับโปรไฟล์ | hook `erp_guard` | ปฏิเสธ tool call |
+| ERP: payload ครบถ้วน + กันเอกสารซ้ำ | hook `erp_guard` | ปฏิเสธ tool call |
+| ERP: ยืนยันก่อนสร้างเอกสาร | hook `erp_guard` | ถามใบแรกของกอง (PEAK ถามทุกใบ) |
+| ตรวจไฟล์ผลลัพธ์ (checksum, ข้อสรุปขัดกันเอง, หัวไฟล์) | hook `post_check` | เตือน ไม่บล็อก |
+| ห้ามเดา / ต้อง preview ให้ครบ / ค้นคู่ค้าให้ครบก่อนสร้างใหม่ | SKILL.md | ต้องใช้วิจารณญาณ — ตรวจแทนไม่ได้ |
+
+โค้ดอยู่ที่ `plugins/<plugin>/hooks/` เป็น Python 3 stdlib ล้วน ไม่มี dependency
+
+### เปลี่ยนลูกค้าระหว่างทาง
+
+pin ผูกกับ session วิธีปกติคือ **`/clear`** แล้วเริ่มใหม่
+ถ้ายังอยากเก็บบริบทไว้ ใช้ `/switch-client` ซึ่งจะขึ้นกล่องให้กดยืนยัน — **การกดนั้นคือตัวด่าน**
+
+> ⚠️ **อย่าใส่ `/switch-client` (หรือ `pin_ctl.py`) ลงใน permissions allowlist**
+> ถ้า allowlist ไว้ กฎ "ทำงานได้ทีละลูกค้า" จะไม่เหลืออะไรเลย
+
+### ถ้าเครื่องไม่มี python3
+
+`hooks.json` เรียกผ่าน `run.sh` ซึ่งจะพ่นข้อความ **deny** ที่อ่านออกแทนการเงียบ ๆ ปล่อยผ่าน
+(hook ที่พังแบบ exit code ผิด จะถูกถือเป็น non-blocking error แล้ว tool จะทำงานต่อ = ด่านถูกปลดโดยไม่มีใครรู้)
+
+ตรวจว่า hook ทำงานจริงในเครื่องนี้:
+```bash
+python3 plugins/accounting-office-core/hooks/session_brief.py --selftest
+```
+
+### ข้อจำกัดที่ต้องรู้ — เขียนไว้ตรง ๆ
+
+1. **Bash เป็นช่องที่ path guard ข้ามได้** — การแกะ path ออกจาก shell string เป็นงานที่ชนะไม่ได้
+   (quoting, `$VAR`, command substitution, heredoc) และ parser ครึ่ง ๆ กลาง ๆ อันตรายกว่าไม่มี
+   เพราะให้ความรู้สึกว่าครอบคลุม hook จึงตรวจ Bash แค่ 3 อย่าง: ปล่อยสคริปต์ของ plugin,
+   บล็อกคำสั่งส่งข้อมูลออกนอกเครื่อง, บล็อกคำสั่งทำลายไฟล์ที่ป้องกันไว้
+   **ใครอยากได้เส้นแข็งกว่านี้ ให้ใส่ `permissions.deny` ใน `settings.json`** ซึ่งเป็นคนละชั้น
+2. **hook กันความผิดพลาดของโมเดลและ prompt injection จากเอกสาร OCR — ไม่ได้กันผู้ใช้ที่ตั้งใจหลบ**
+   ผู้ใช้ที่ปิด plugin หรือ allowlist คำสั่งไว้ ย่อมข้ามได้ทั้งหมด และนั่นถูกต้องแล้ว
+3. **ด่านของ PEAK ทำงานแบบ learn-mode** — ชื่อ tool และรูป payload ของ PEAK ยังไม่ได้ยืนยัน
+   กับ endpoint จริง จึงตรวจโครงสร้าง payload ไม่ได้ และถามผู้ใช้ทุกใบ
+   `hooks/erp_post.py` บันทึกชื่อ tool ที่เจอจริงลง `${CLAUDE_PLUGIN_DATA}/observed-tools.json`
+   ให้ก็อปไปเติม `hooks/peak-tools.json` และ `tools:` ของ `agents/peak-lookup.md`
+4. **state ของ session อยู่ที่ `~/.accounting-office/`** (เปลี่ยนได้ด้วย `ACCOUNTING_OFFICE_STATE`)
+   ไม่ได้อยู่ในโฟลเดอร์ลูกค้า เพราะโฟลเดอร์นั้นถูกซิปส่งให้ลูกค้า — session ที่เก่ากว่า 7 วันถูกลบอัตโนมัติ
+   audit log อยู่ที่ `${CLAUDE_PLUGIN_DATA}/audit/` และเก็บแค่ชื่อโฟลเดอร์ลูกค้า ไม่เก็บชื่อผู้ขายหรือยอดเงิน
+
+### แก้โค้ด hook
+
+`hooks/lib/` ที่ใช้ร่วมกันถูกก็อป 3 ชุด เพราะ plugin อ้างไฟล์ข้ามกันไม่ได้
+แก้ที่ `accounting-office-core` แล้วรัน:
+
+```bash
+python3 scripts/sync_hooks_lib.py                                  # ซิงก์
+python3 plugins/accounting-office-core/hooks/tests/run_tests.py
+python3 plugins/accounting-office-flowaccount/hooks/tests/run_tests.py
+python3 plugins/accounting-office-peak/hooks/tests/run_tests.py
+```
+
+เทสต์ของ core จะ assert SHA-256 ของทุกสำเนา — drift จึงกลายเป็นเทสต์แดง ไม่ใช่บั๊กลึกลับ
+สิ่งที่ fixture พิสูจน์ไม่ได้อยู่ใน `plugins/accounting-office-core/hooks/tests/MANUAL.md`
 
 ---
 
@@ -217,6 +279,19 @@ plugin ชุดนี้เป็นเครื่องมือช่วย�
 ---
 
 ## ประวัติเวอร์ชัน
+
+### 1.3.0 — 2026-09-18
+- **เพิ่มชั้น hooks ให้ทั้ง 3 plugin** — กฎที่เครื่องตรวจได้ย้ายจากข้อความใน markdown
+  มาเป็นโค้ดที่บล็อก tool call ได้จริง (ดูหัวข้อ "ด่านตรวจอัตโนมัติ")
+  - core: `path_guard`, `privacy_guard`, `post_check`, `session_brief`
+  - flowaccount / peak: `erp_guard`, `erp_post`
+- เพิ่มคำสั่ง `/switch-client` สำหรับเปลี่ยนลูกค้าโดยไม่ต้อง `/clear`
+- **ย่อบล็อกกฎบังคับใน SKILL.md ทั้ง 7 ไฟล์** เหลือตารางที่แยกชัดว่าข้อไหน hook บังคับ
+  ข้อไหนต้องใช้วิจารณญาณ — L2 ของทุก skill สั้นลง
+- เลิก hardcode เลขเวอร์ชันใน prose (ค้างที่ `v1.1.0` ขณะที่ manifest เป็น `1.2.0`)
+  หัวไฟล์ให้ hook สร้างจาก `plugin.json` แล้วเติมให้เองตอนเขียนลง `output/`
+- เพิ่มชุดทดสอบ 114 เคสในทั้ง 3 plugin รวม golden test บนรายชื่อ tool จริงของ FlowAccount
+  ทั้งชุด × 2 รูปแบบชื่อ server (`mcp__flowaccount__` และ `mcp__claude_ai_FlowAccount_MCP__`)
 
 ### 1.2.0 — 2026-09-18
 - เพิ่ม skill `token-meter` + คำสั่ง `/token-report` ใน `accounting-office-core`

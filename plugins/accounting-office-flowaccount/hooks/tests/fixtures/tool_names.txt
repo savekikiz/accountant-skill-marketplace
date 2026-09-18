@@ -1,0 +1,81 @@
+# รายชื่อ tool จริงของ FlowAccount MCP พร้อมประเภทที่ด่านตรวจต้องจำแนกให้ได้
+# รูปแบบ: <namespace__action> <read|create|forbidden|auth>
+#
+# ไฟล์นี้คือเทสต์ที่คุ้มที่สุดในชุด — มันพิสูจน์ว่าด่านไม่บล็อกงานปกติ
+# แถวที่ทำเครื่องหมาย [กับดัก] คือตัวที่กฎแบบ substring จะตัดสินผิด
+
+accounting__get_ap_aging read
+accounting__get_ar_aging read
+accounting__get_balance_sheet read
+accounting__get_chart_of_accounts read
+accounting__get_exchange_rate read
+accounting__get_profit_loss read
+accounting__get_report_status read
+accounting__get_trial_balance read
+accounting__list_company_currencies read
+accounting__list_general_journal read
+accounting__list_payment_journal read
+accounting__list_purchase_journal read
+accounting__list_receipt_journal read
+accounting__list_sales_journal read
+company__list read
+company_settings__list_payment_channels read
+company_settings__load read
+contacts__list read
+documents__email forbidden
+documents__get_creation_status read
+documents__get_share_link forbidden
+expense__create_expense create
+expense__create_purchase_order create
+expense__create_receiving_inventory create
+expense__get_document read
+expense__list_business_categories read
+expense__list_expenses read
+expense__list_purchase_orders read
+expense__list_receiving_inventory read
+expense__validate_expense read
+expense__validate_purchase_order read
+expense__validate_receiving_inventory read
+gateway__get_health read
+gateway__get_version read
+gateway__submit_feedback forbidden
+gateway__update_feedback forbidden
+gl__approve_journal_entry forbidden
+gl__create_and_approve_journal_entry forbidden
+gl__create_journal_entry forbidden
+gl__get_journal_entry_status read
+gl__validate_journal_entry read
+overview__get_aging_summary read
+overview__get_outstanding_invoices read
+overview__get_outstanding_payments read
+product__get read
+product__list read
+product__list_categories read
+sales__create_billing_note forbidden
+sales__create_cash_invoice forbidden
+sales__create_quotation forbidden
+sales__create_tax_invoice forbidden
+sales__get_document read
+sales__list_billing_notes read
+sales__list_cash_invoices read
+sales__list_credit_notes read
+sales__list_debit_notes read
+sales__list_quotations read
+sales__list_receipts read
+sales__list_tax_invoices read
+sales__validate_billing_note read
+sales__validate_quotation read
+sales__validate_tax_invoice read
+
+# --- tool ที่ยังไม่มีจริง: พิสูจน์ว่ากฎ verb ทำงาน ไม่ใช่ list ชื่อ ---
+# ถ้าวันหนึ่ง FlowAccount เพิ่ม tool พวกนี้ ด่านต้องกันได้โดยไม่ต้องแก้โค้ด
+expense__void_expense forbidden
+expense__delete_expense forbidden
+expense__update_expense forbidden
+expense__record_payment forbidden
+documents__send_email forbidden
+periods__close_period forbidden
+
+# --- auth: ต้องผ่านก่อนกฎอื่นทุกข้อ ไม่งั้นผู้ใช้เชื่อมต่อไม่ได้ ---
+authenticate auth
+complete_authentication auth

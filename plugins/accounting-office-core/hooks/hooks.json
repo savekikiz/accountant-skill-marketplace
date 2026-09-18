@@ -1,0 +1,54 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/run.sh session_brief.py",
+            "timeout": 10,
+            "statusMessage": "accounting-office: เตรียมด่านตรวจ"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|NotebookEdit|Glob|Grep|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/run.sh path_guard.py",
+            "timeout": 10,
+            "statusMessage": "ตรวจโฟลเดอร์ลูกค้า"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|WebFetch|WebSearch|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/run.sh privacy_guard.py",
+            "timeout": 10,
+            "statusMessage": "ตรวจการส่งข้อมูลออกนอกเครื่อง"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/run.sh post_check.py",
+            "timeout": 10,
+            "statusMessage": "ตรวจไฟล์ผลลัพธ์"
+          }
+        ]
+      }
+    ]
+  }
+}

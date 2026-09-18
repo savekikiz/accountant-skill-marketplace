@@ -2,3 +2,4 @@
 ลูกค้า/
 *.xlsx
 !plugins/**/*.xlsx
+.accounting-office/

@@ -1,0 +1,14 @@
+{
+  "_readme": [
+    "รายชื่อ tool ของ PEAK MCP ที่ยืนยันแล้วว่าเป็น tool อ่านอย่างเดียว",
+    "ว่างอยู่โดยตั้งใจ — เหมือนที่ agents/peak-lookup.md ship มาด้วย tools: []",
+    "",
+    "วิธีเติม: ใช้งาน PEAK MCP ไปสักพัก แล้วเปิด ${CLAUDE_PLUGIN_DATA}/observed-tools.json",
+    "ซึ่ง erp_post.py บันทึกชื่อ tool ที่เจอจริงไว้ให้ คัดเฉพาะตัวที่เป็นการอ่านมาใส่ที่นี่",
+    "แล้วคัดชุดเดียวกันไปใส่ใน tools: ของ agents/peak-lookup.md",
+    "",
+    "ชื่อที่ใส่ที่นี่ให้ใส่แบบ <namespace>__<action> ไม่ต้องมี mcp__peak__ นำหน้า",
+    "ตัวที่ไม่อยู่ในรายการนี้และ verb ไม่ชัดเจน จะถูก deny (learn-mode)"
+  ],
+  "read_tools": []
+}

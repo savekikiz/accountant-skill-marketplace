@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/run.sh erp_guard.py",
+            "timeout": 10,
+            "statusMessage": "ตรวจก่อนเขียนเข้า PEAK"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__.*|Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/run.sh erp_post.py",
+            "timeout": 10,
+            "statusMessage": "ตรวจผลจาก PEAK"
+          }
+        ]
+      }
+    ]
+  }
+}
