@@ -1,7 +1,7 @@
 {
   "name": "accounting-office-core",
-  "description": "งานหลักของสำนักงานบัญชีไทย: ตรวจผล OCR, vouch ค่าใช้จ่าย, กระทบยอดธนาคาร, เตรียม ภ.ง.ด.3/53 และสรุปปิดงวด — ไม่ผูกกับ ERP ตัวใด",
-  "version": "1.1.0",
+  "description": "งานหลักของสำนักงานบัญชีไทย: ตรวจผล OCR, vouch ค่าใช้จ่าย, กระทบยอดธนาคาร, เตรียม ภ.ง.ด.3/53, สรุปปิดงวด และวัดต้นทุน token ของงาน — ไม่ผูกกับ ERP ตัวใด",
+  "version": "1.2.0",
   "author": {
     "name": "Surapas Mobundit (เซฟ / บัญชีเทค)"
   },
@@ -13,6 +13,9 @@
     "ocr",
     "vouch",
     "bank-reconcile",
-    "wht"
+    "wht",
+    "token-meter",
+    "token-usage",
+    "cost"
   ]
 }

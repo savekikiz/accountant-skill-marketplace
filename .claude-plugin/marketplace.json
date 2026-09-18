@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "thai-accounting-office",
   "description": "Plugin สำหรับสำนักงานบัญชีไทย: ตรวจเอกสาร กระทบยอด ภาษี และบันทึกเข้า ERP",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "owner": {
     "name": "Surapas Mobundit",
     "email": "hello@bancheetech.com",
@@ -17,8 +17,8 @@
       "name": "accounting-office-core",
       "displayName": "สำนักงานบัญชี — งานหลัก",
       "source": "./plugins/accounting-office-core",
-      "description": "งานหลักของสำนักงานบัญชี: ตรวจผล OCR, vouch, กระทบยอดธนาคาร, ภ.ง.ด.3/53, สรุปปิดงวด",
-      "version": "1.1.0",
+      "description": "งานหลักของสำนักงานบัญชี: ตรวจผล OCR, vouch, กระทบยอดธนาคาร, ภ.ง.ด.3/53, สรุปปิดงวด, รายงานต้นทุน token",
+      "version": "1.2.0",
       "category": "accounting",
       "license": "MIT",
       "author": {
@@ -31,7 +31,9 @@
         "bank-reconciliation",
         "ภ.ง.ด.3",
         "ภ.ง.ด.53",
-        "ปิดงวด"
+        "ปิดงวด",
+        "token-meter",
+        "ต้นทุน-token"
       ],
       "metadata": {
         "language": "th",

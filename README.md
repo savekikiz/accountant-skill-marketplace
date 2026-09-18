@@ -53,6 +53,7 @@
 | `/bank-reconcile` | กระทบยอด GL เงินฝากกับ Bank Statement |
 | `/wht-prep` | เตรียมข้อมูล ภ.ง.ด.3 / ภ.ง.ด.53 |
 | `/close-report` | สรุปสถานะปิดงวด + ร่างอีเมลขอเอกสาร |
+| `/token-report` | รายงานการใช้ token และต้นทุน (USD/บาท) ของงานที่ทำไป |
 
 ### `accounting-office-flowaccount`
 | คำสั่ง | ทำอะไร |
@@ -102,6 +103,26 @@ Subagent ทำงานในหน้าต่าง context ของตั�
 
 ---
 
+## วัดต้นทุน token — `/token-report`
+
+skill `token-meter` อยู่ใน `accounting-office-core` จึงใช้ได้จากทุก plugin ในชุดนี้
+(ไม่ต้องติดตั้งเพิ่ม และไม่ถูกก็อปซ้ำใน flowaccount/peak เพื่อไม่ให้กิน context ซ้ำซ้อน)
+
+| อยากรู้ | ทำอะไร |
+|---|---|
+| งวดนี้ทำงานลูกค้าไปแล้วกิน token/เงินเท่าไร | `/token-report session` |
+| skill ตัวไหนในชุดนี้กิน context เยอะ | `/token-report skills` |
+| `CLAUDE.md` / system prompt ที่เขียนไว้ยาวกี่ token | `/token-report prompt <ไฟล์>` |
+
+ตัวเลข `session` อ่านจาก transcript จริงของ Claude Code จึงตรงตาม API
+ส่วน `skills` / `prompt` เป็น **ค่าประมาณ ±30%** ถ้าไม่ได้ตั้ง `ANTHROPIC_API_KEY`
+
+> ตัวเลข USD คือราคาเทียบ API ไว้ดู "ขนาดงาน" — ผู้ใช้แพ็กเกจ Pro/Max ไม่ได้จ่ายตามนี้
+> ก่อนเอาไปตั้งราคาลูกค้า ให้ตรวจ `skills/token-meter/references/pricing.json`
+> เทียบกับ https://docs.claude.com/en/docs/about-claude/pricing ก่อน
+
+---
+
 ## ลำดับงานที่ออกแบบไว้
 
 ```
@@ -119,6 +140,8 @@ Subagent ทำงานในหน้าต่าง context ของตั�
       ↓
 /close-report      สรุปปิดงวด + ร่างอีเมลขอเอกสารที่ขาด
 ```
+
+`/token-report` ใช้ได้ทุกเมื่อ ไม่อยู่ในลำดับนี้ — เป็นงานวัดผล ไม่ใช่งานบัญชี
 
 ข้ามขั้นได้ถ้างานนั้นไม่มี แต่ `/post-expense-*` **ควรทำหลัง** `/vouch-expense` เสมอ
 
@@ -147,7 +170,8 @@ Subagent ทำงานในหน้าต่าง context ของตั�
 
 ## กฎบังคับที่มีอยู่ในทุก SKILL.md
 
-Plugin แต่ละตัวอ้างไฟล์ข้ามกันไม่ได้ กฎชุดเดียวกันนี้จึงถูกเขียนซ้ำไว้ต้นทุก skill
+Plugin แต่ละตัวอ้างไฟล์ข้ามกันไม่ได้ กฎชุดเดียวกันนี้จึงถูกเขียนซ้ำไว้ต้นทุก skill ที่ทำงานกับข้อมูลลูกค้า
+(ยกเว้น `token-meter` ซึ่งไม่แตะโฟลเดอร์ลูกค้าและไม่เขียนเข้า ERP — ใช้เฉพาะข้อ 5 บวกข้อห้ามเปิดเผยเนื้อหา transcript)
 
 1. ทำงานเฉพาะในโฟลเดอร์ลูกค้าที่ผู้ใช้ระบุ ห้ามอ่านหรือเขียนโฟลเดอร์ลูกค้าอื่น
 2. อ่าน `client-profile.md` ก่อนเริ่มงานทุกครั้ง
@@ -193,6 +217,13 @@ plugin ชุดนี้เป็นเครื่องมือช่วย�
 ---
 
 ## ประวัติเวอร์ชัน
+
+### 1.2.0 — 2026-09-18
+- เพิ่ม skill `token-meter` + คำสั่ง `/token-report` ใน `accounting-office-core`
+  วัด token และต้นทุนได้ 3 มุม: ราย session/turn จาก transcript จริง,
+  ขนาด L1/L2/L3 ของแต่ละ skill, และความยาวของไฟล์ prompt/`CLAUDE.md`
+- วางไว้ใน core ตัวเดียวแทนที่จะก็อปลงทั้ง 3 plugin — flowaccount/peak ใช้ของ core ได้เลย
+  เพราะติดตั้ง core อยู่แล้ว และไม่ทำให้ description ถูกโหลดเข้า context ซ้ำ 3 รอบ
 
 ### 1.1.0 — 2026-09-16
 - เพิ่ม subagent 4 ตัว
