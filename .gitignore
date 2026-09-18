@@ -3,3 +3,4 @@
 *.xlsx
 !plugins/**/*.xlsx
 .accounting-office/
+dist/
